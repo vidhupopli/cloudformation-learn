@@ -1,0 +1,15 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: This is Cfn template to create one S3 Bucket and one EC2 instance.
+
+Resources:
+  NarayanS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: demo-narayan-bucket21839
+  NarayanEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-08b5b3a93ed654d19
+      InstanceType: t2.micro
