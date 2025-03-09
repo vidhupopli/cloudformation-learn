@@ -1,0 +1,10 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: This is Cfn template to create S3 Bucket.
+
+Resources:
+  NarayanS3Bucket: # Logical name of the resource
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: demo-narayan-bucket21839 # Physical name of the resource
