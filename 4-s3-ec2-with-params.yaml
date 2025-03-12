@@ -1,0 +1,35 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Cfn template to create one S3 Bucket and one EC2 instance using certain parameters.
+
+Parameters:
+  ParamBucketName:
+    Description: Enter globally unique s3 bucket name.
+    Type: String
+  ParamInstanceType:
+    Description: Choose which type of EC2 instance you want.
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+  ParamImageId:
+    Description: Enter the AMI ID you want to choose for your instance.
+    Type: String
+    Default: ami-08b5b3a93ed654d19
+    AllowedValues:
+      - ami-08b5b3a93ed654d19
+      - ami-72b5b3a93ed654d20 # This image ID doesn't exist in real world.
+
+Resources:
+  NarayanS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ParamBucketName
+  NarayanEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-08b5b3a93ed654d19
+      InstanceType: !Ref ParamInstanceType
