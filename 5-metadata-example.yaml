@@ -1,0 +1,57 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: This Cfn template creates an EC2 instance and S3 Bucket using parameters. The params are classified using metadata.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "S3 Configuration"
+        Parameters:
+          - ParamBucketName
+          - ParamBucketVersioningStatus
+      - Label:
+          default: "EC2 Configuration"
+        Parameters:
+          - ParamAmiId
+          - ParamInstanceType
+
+Parameters:
+  ParamBucketName:
+    Description: Globally unique S3 bucket name.
+    Type: String
+  ParamBucketVersioningStatus:
+    Description: Determines whether objects are going to versioned.
+    Type: String
+    Default: Disabled
+    AllowedValues:
+      - Disabled
+      - Enabled
+  ParamAmiId:
+    Description: Determines OS AMI to use
+    Type: String
+    Default: ami-04b4f1a9cf54c11d0
+    AllowedValues:
+      - ami-08b5b3a93ed654d19
+      - ami-04b4f1a9cf54c11d0
+  ParamInstanceType:
+    Description: Selects the type of instance to deploy.
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.nano
+
+Resources:
+  NarayanS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ParamBucketName
+      VersioningConfiguration:
+        Status: !Ref ParamBucketVersioningStatus
+  NarayanEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ParamAmiId
+      InstanceType: !Ref ParamInstanceType
