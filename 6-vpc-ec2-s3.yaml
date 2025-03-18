@@ -1,0 +1,55 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Cfn template to create a custom VPC and deploy an EC2 instance in it. Also create S3 bucke.
+
+Parameters:
+  PVpcCidrBlock:
+    Description: Overall CIDR range available in VPC.
+    Type: String
+    Default: "10.0.0.0/16"
+  PSubnetCidrBlock:
+    Description: Subnet CIDR subset from overall range available.
+    Type: String
+    Default: "10.0.0.0/24"
+  PInstanceType:
+    Description: Determines the instance type
+    Type: String
+    Default: "t2.micro"
+    AllowedValues:
+      - "t2.nano"
+      - "t2.micro"
+  PImageId:
+    Description: Determines the AMI to use for instance.
+    Type: String
+    Default: "ami-08b5b3a93ed654d19"
+    AllowedValues:
+      - "ami-08b5b3a93ed654d19"
+      - "ami-04b4f1a9cf54c11d0"
+  PBucketName:
+    Description: To set globally unique bucket name.
+    Type: String
+
+Resources:
+  NarayanVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref PVpcCidrBlock
+      Tags:
+        - Key: Name
+          Value: NarayanVPC
+  NarayanSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref NarayanVpc
+      CidrBlock: !Ref PSubnetCidrBlock
+  NarayanInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref PInstanceType
+      SubnetId: !Ref NarayanSubnet
+      ImageId: !Ref PImageId
+  NarayanS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref PBucketName
