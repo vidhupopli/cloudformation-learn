@@ -3,6 +3,24 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Description: Cfn template to create a custom VPC and deploy an EC2 instance in it. Also create S3 bucke.
 
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - PVpcCidrBlock
+          - PSubnetCidrBlock
+      - Label:
+          default: "Instance Configuration"
+        Parameters:
+          - PInstanceType
+          - PImageId
+      - Label:
+          default: "Storage Configuration"
+        Parameters:
+          - PBucketName
+
 Parameters:
   PVpcCidrBlock:
     Description: Overall CIDR range available in VPC.
