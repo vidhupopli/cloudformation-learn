@@ -1,0 +1,103 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: This template creates Auto Scaling Group.
+
+Resources:
+  NarayanSGALB:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allows http traffic from anywhere.
+      GroupName: !Sub "${AWS::StackName}-narayan-sg"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Stack
+          Value: LearningCfn
+      VpcId: vpc-0d8777dcfbc42be6d
+
+  NarayanSGEC2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allows http comm with ALB only.
+      GroupName: !Sub "${AWS::StackName}-narayan-sg"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref NarayanSGALB
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Ref NarayanSGALB
+      Tags:
+        - Key: Stack
+          Value: LearningCfn
+      VpcId: vpc-0d8777dcfbc42be6d
+
+  NarayanLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId: ami-0791fceed8a11b9b3
+        InstanceType: t2.micro
+        SecurityGroupIds:
+          - !Ref NarayanSecurityGroup
+        UserData: IyEvYmluL2Jhc2gKeXVtIHVwZ3JhZGUKeXVtIGluc3RhbGwgaHR0cGQgLXkKc3lzdGVtY3RsIGVuYWJsZSBodHRwZApzeXN0ZW1jdGwgc3RhcnQgaHR0cGQKZWNobyAiSGVsbG8gJChob3N0bmFtZSkiID4gL3Zhci93d3cvaHRtbC9pbmRleC5odG1s
+      LaunchTemplateName: GurudevLaunchTemplate
+      TagSpecifications:
+        - ResourceType: "launch-template"
+          Tags:
+            - Key: "Stack"
+              Value: "LearningCfn"
+
+  NarayanASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref NarayanLaunchTemplate
+        Version: !GetAtt NarayanLaunchTemplate.LatestVersionNumber
+      AutoScalingGroupName: GurudevASG
+      AvailabilityZones:
+        - us-east-1a
+        - us-east-1b
+      DesiredCapacity: "2"
+      MaxSize: "2"
+      MinSize: "1"
+      TargetGroupARNs:
+        - !Ref NarayanSGEC2
+
+  NarayanALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - subnet-0dec4180b9c898513
+        - subnet-0a2331cf8d0cf2f3a
+      SecurityGroups:
+        - !Ref NarayanSGALB
+
+  NarayanALBListner:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref NarayanALB
+      Protocol: HTTP
+      Port: 80
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref NarayanTargetGroup
+
+  NarayanTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      VpcId: vpc-0d8777dcfbc42be6d
