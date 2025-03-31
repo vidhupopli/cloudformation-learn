@@ -8,7 +8,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allows http traffic from anywhere.
-      GroupName: !Sub "${AWS::StackName}-narayan-sg"
+      GroupName: !Sub "${AWS::StackName}-alb-sg"
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -28,17 +28,17 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allows http comm with ALB only.
-      GroupName: !Sub "${AWS::StackName}-narayan-sg"
+      GroupName: !Sub "${AWS::StackName}-ec2-sg"
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: !Ref NarayanSGALB
+          SourceSecurityGroupId: !Ref NarayanSGALB
       SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 0
           ToPort: 65535
-          CidrIp: !Ref NarayanSGALB
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Stack
           Value: LearningCfn
@@ -51,7 +51,7 @@ Resources:
         ImageId: ami-0791fceed8a11b9b3
         InstanceType: t2.micro
         SecurityGroupIds:
-          - !Ref NarayanSecurityGroup
+          - !Ref NarayanSGEC2
         UserData: IyEvYmluL2Jhc2gKeXVtIHVwZ3JhZGUKeXVtIGluc3RhbGwgaHR0cGQgLXkKc3lzdGVtY3RsIGVuYWJsZSBodHRwZApzeXN0ZW1jdGwgc3RhcnQgaHR0cGQKZWNobyAiSGVsbG8gJChob3N0bmFtZSkiID4gL3Zhci93d3cvaHRtbC9pbmRleC5odG1s
       LaunchTemplateName: GurudevLaunchTemplate
       TagSpecifications:
@@ -74,7 +74,7 @@ Resources:
       MaxSize: "2"
       MinSize: "1"
       TargetGroupARNs:
-        - !Ref NarayanSGEC2
+        - !Ref NarayanTargetGroup
 
   NarayanALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
