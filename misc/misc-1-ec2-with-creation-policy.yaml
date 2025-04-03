@@ -1,0 +1,26 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Custom signal for Create Complete status of a resource"
+Resources:
+  NarayanInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: NarayanInstanceProfile
+      Roles:
+        - NarayanTempRole
+  NarayanEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-00a929b66ed6e0de6
+      InstanceType: t2.micro
+      IamInstanceProfile: !Ref NarayanInstanceProfile
+      UserData: !Base64
+        Fn::Sub: |
+          #!/bin/bash
+          # The following script is executed upon instance launch
+
+          # Send the signal
+          aws cloudformation signal-resource --stack-name ${AWS::StackName} --logical-resource-id NarayanEC2Instance --status SUCCESS --unique-id 1234 --region ${AWS::Region}
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT5M
